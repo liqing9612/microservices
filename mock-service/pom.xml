@@ -6,33 +6,34 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.2.4.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>com.dgn.src</groupId>
-    <artifactId>network-wallet-service</artifactId>
+    <artifactId>mock-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>network-wallet-service</name>
-    <description>Emulator for Discover® Digital Exchange</description>
+    <name>mock-service</name>
+    <description>mock service</description>
 
     <properties>
         <java.version>11</java.version>
     </properties>
+
     <repositories>
         <repository>
-            <id>nexus</id>
-            <url>http://devops-tools-nexus-alb-1662505887.us-east-1.elb.amazonaws.com/repository/maven-group/</url>
+            <id>QA</id>
+            <url>http://XXXXXXXX.elb.amazonaws.com/repository/maven-group/</url>
         </repository>
     </repositories>
 
     <distributionManagement>
         <snapshotRepository>
-            <id>nexus</id>
+            <id>QA</id>
             <name>Nexus Release Repository</name>
-            <url>http://devops-tools-nexus-alb-1662505887.us-east-1.elb.amazonaws.com/repository/maven-snapshots/</url>
+            <url>http://XXXXXXXX.elb.amazonaws.com/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
-            <id>nexus</id>
-            <url>http://devops-tools-nexus-alb-1662505887.us-east-1.elb.amazonaws.com/repository/maven-releases/</url>
+            <id>QA</id>
+            <url>http://XXXXXXXX.elb.amazonaws.com/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
@@ -208,11 +209,11 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/api/ddx-enumerator-service.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/api/mock-service.yaml</inputSpec>
                             <language>spring</language>
                             <output>${project.build.directory}/server-generated-sources</output>
-                            <apiPackage>com.dgn.src.networkwalletservice.api</apiPackage>
-                            <modelPackage>com.dgn.src.networkwalletservice.model</modelPackage>
+                            <apiPackage>com.dgn.src.mockservice.api</apiPackage>
+                            <modelPackage>com.dgn.src.mockservice.model</modelPackage>
                             <generateApis>true</generateApis>
                             <generateModels>true</generateModels>
                             <generateApiTests>false</generateApiTests>
@@ -231,45 +232,5 @@
             </plugin>
         </plugins>
     </build>
-
-
-<!--    <build>-->
-<!--        <plugins>-->
-<!--            <plugin>-->
-<!--                <groupId>org.openapitools</groupId>-->
-<!--                <artifactId>openapi-generator-maven-plugin</artifactId>-->
-<!--                <version>4.2.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>generate-sources</phase>-->
-<!--                        <id>networkwalletservice-server-code</id>-->
-<!--                        <goals>-->
-<!--                            <goal>generate</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <inputSpec>${project.basedir}/src/main/resources/openapi/ddx-enumerator-service.yaml</inputSpec>-->
-<!--                            <generatorName>spring</generatorName>-->
-<!--                            <output>${project.build.directory}/server-generated-sources</output>-->
-<!--                            <apiPackage>com.dgn.src.networkwalletservice.api</apiPackage>-->
-<!--                            <modelPackage>com.dgn.src.networkwalletservice.model</modelPackage>-->
-<!--                            <generateApis>true</generateApis>-->
-<!--                            <generateModels>true</generateModels>-->
-<!--                            <generateApiTests>false</generateApiTests>-->
-<!--                            <generateApiDocumentation>true</generateApiDocumentation>-->
-<!--                            <generateSupportingFiles>true</generateSupportingFiles>-->
-<!--                            <generateModelDocumentation>false</generateModelDocumentation>-->
-<!--                            <configOptions>-->
-<!--                                <delegatePattern>true</delegatePattern>-->
-<!--                                <useTags>true</useTags>-->
-<!--                                <dateLibrary>java11</dateLibrary>-->
-<!--                            </configOptions>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-
-<!--                </executions>-->
-<!--            </plugin>-->
-<!--        </plugins>-->
-<!--    </build>-->
-
 
 </project>

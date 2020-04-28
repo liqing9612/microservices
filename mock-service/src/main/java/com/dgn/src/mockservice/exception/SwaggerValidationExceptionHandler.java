@@ -1,8 +1,8 @@
-package com.dgn.src.networkwalletservice.exception;
+package com.dgn.src.mockservice.exception;
 
 import com.dgn.src.common.apierror.handler.CommonsExceptionHandler;
-import com.dgn.src.networkwalletservice.model.ResponseHeader;
-import com.dgn.src.networkwalletservice.model.SRCAccountProvisionResponse;
+import com.dgn.src.mockservice.model.ResponseHeader;
+import com.dgn.src.mockservice.model.SRCAccountProvisionResponse;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +38,7 @@ public class SwaggerValidationExceptionHandler extends CommonsExceptionHandler {
                 String defaultMessage = fieldError.getDefaultMessage();
                 String errorField = fieldError.getField();
                 String errorMessage = errorField + " - " + defaultMessage;
-                com.dgn.src.networkwalletservice.model.Error responseErr = new com.dgn.src.networkwalletservice.model.Error();
+                com.dgn.src.mockservice.model.Error responseErr = new com.dgn.src.mockservice.model.Error();
                 responseErr.setErrorCode("10001");
                 responseErr.setErrorMessage(errorMessage);
                 response.getErrors().add(responseErr);
@@ -61,7 +61,7 @@ public class SwaggerValidationExceptionHandler extends CommonsExceptionHandler {
         } else {
             errorMessage = "internal server error";
         }
-        com.dgn.src.networkwalletservice.model.Error responseErr = new com.dgn.src.networkwalletservice.model.Error();
+        com.dgn.src.mockservice.model.Error responseErr = new com.dgn.src.mockservice.model.Error();
         responseErr.setErrorCode("10001");
         responseErr.setErrorMessage(errorMessage);
         response.getErrors().add(responseErr);

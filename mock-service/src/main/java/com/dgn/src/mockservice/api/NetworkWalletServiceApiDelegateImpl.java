@@ -1,7 +1,7 @@
-package com.dgn.src.networkwalletservice.api;
+package com.dgn.src.mockservice.api;
 
-import com.dgn.src.networkwalletservice.model.*;
-import com.dgn.src.networkwalletservice.model.Error;
+import com.dgn.src.mockservice.model.*;
+import com.dgn.src.mockservice.model.Error;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;

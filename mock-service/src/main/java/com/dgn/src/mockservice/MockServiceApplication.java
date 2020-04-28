@@ -1,4 +1,4 @@
-package com.dgn.src.networkwalletservice;
+package com.dgn.src.mockservice;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,11 +8,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 @SpringBootApplication
-public class NetworkWalletServiceApplication implements CommandLineRunner {
-	private static final Logger logger = LoggerFactory.getLogger(NetworkWalletServiceApplication.class);
+public class MockServiceApplication implements CommandLineRunner {
+	private static final Logger logger = LoggerFactory.getLogger(MockServiceApplication.class);
 
 	public static void main(String[] args) throws Exception {
-		SpringApplication.run(NetworkWalletServiceApplication.class);
+		SpringApplication.run(MockServiceApplication.class);
 	}
 
 	@Override
