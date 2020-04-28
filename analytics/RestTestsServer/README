@@ -1,0 +1,9 @@
+1) run it:
+
+java -jar target/RestServer-0.0.1-SNAPSHOT.jar
+
+2) how to use it.
+
+   2.1) get image file : http://localhost:8090/api/image
+   2.2) get PDF file:    http://localhost:8090/api/pdf
+

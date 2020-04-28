@@ -1,0 +1,10 @@
+.DS_Store
+.classpath
+.project
+.settings
+target
+.zip
+.tar
+.jar
+.class
+.pdf

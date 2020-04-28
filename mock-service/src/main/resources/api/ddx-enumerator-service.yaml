@@ -1,0 +1,673 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Discover Network Wallet Services (NWS) APIs
+  description: Discover Network Wallet Services (NWS) APIs.
+  termsOfService: https://developer.discover.com/terms-of-use
+  contact:
+    name: DGN SRC Team
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+tags:
+  - name: NetworkWalletService
+    description: Allows operations to provision a Card into a digital wallet
+paths:
+  /nwp/src/v2/account/provision:
+    post:
+      summary: "Network Wallet Service : The Account Provision API is a request to
+        provision a Card into a digital wallet."
+      operationId: provisionAccount
+      tags:
+        - NetworkWalletService
+      parameters:
+        - name: Accept
+          in: header
+          description: Only accept application/json type.
+          required: true
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          description: Only accept application/json type.
+          required: true
+          schema:
+            type: string
+        - name: Cache-Control
+          in: header
+          description: no-store
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer
+          required: true
+          schema:
+            type: string
+        - name: X-DFS-C-APP-CERT
+          in: header
+          description: consumer application certificate
+          required: true
+          schema:
+            type: string
+        - name: X-DFS-API-PLAN
+          in: header
+          description: Intended API Plan
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SRCAccountProvisionRequest"
+        description: Create new Transaction
+        required: true
+      responses:
+        "200":
+          description: Successfully processed request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SRCAccountProvisionResponse"
+        "400":
+          description: Bad request, see error object for details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SRCAccountProvisionResponse"
+        "401":
+          description: Missing or incorrect credentials, the server will return HTTP Status
+            code 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SRCAccountProvisionResponse"
+        "403":
+          description: Forbidden, see error object for details, access to the resource
+            identified by URI is forbidden for some reason.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SRCAccountProvisionResponse"
+        "500":
+          description: Unknown server error. Typically a server bug.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+servers:
+  - url: http://networkwalletservice:8080/api
+  - url: https://networkwalletservice:8080/api
+components:
+  schemas:
+    AccountContext:
+      type: object
+      properties:
+        pan:
+          type: string
+          maxLength: 19
+          pattern: ^([0-9]{12,19})$
+          description: The Primary Account Number representing the Account that is to be boarded onto the wallet.
+        expDate:
+          type: string
+          maxLength: 4
+          pattern: ^((0[1-9]|11|12)[0-9][0-9]{1,4})$
+          description: The expiry Date of the card. Format MMYY.
+        seqNbr:
+          type: string
+          maxLength: 3
+          pattern: ^([0-9]{1,3})$
+          description: The sequence number indicating which issue of the card this is.
+        cardHolderName:
+          type: string
+          maxLength: 64
+          pattern: ^([^\\p{C}]{1,64})$
+          description: The cardholder name can contain special characters such as diacritic marks (umlauts, cedillas, accents) or Emoji characters so it is difficult to restrict the values on this. The transport will validate that it is a UTF-8 character.
+        billingAddr:
+          type: string
+          maxLength: 128
+          pattern: ^([^\\p{C}]{1,128})$
+          description: Full Billing Address of the CardHolder
+        billingZip:
+          type: string
+          maxLength: 24
+          pattern: ^([A-Za-z0-9- ]{1,24})$
+          description: Full Billing Zip of the Customer
+    AccountMetadataContext:
+      type: object
+      required:
+        - cardType
+        - productDescription
+        - cardImageId
+        - panSuffix
+        - tokenSuffix
+        - foregroundColorRGB
+        - backgroundColorRGB
+      properties:
+        cardType:
+          type: string
+          maxLength: 36
+          pattern: ^([^\p{C}]{1,36})$
+          description: Card type, Debit/Credit.
+        productDescription:
+          type: string
+          maxLength: 64
+          pattern: ^([^\p{C}]{1,128})$
+          description: Discover Card Description – "Discover It", "Discover More",
+            "Discover Miles".
+        cardImageId:
+          type: string
+          maxLength: 64
+          pattern: ^([A-Za-z0-9-_]{1,64})$
+          description: UUID for card image
+        panSuffix:
+          type: string
+          maxLength: 4
+          pattern: ^([0-9]{4})$
+          description: last 4 digits of the PAN
+        newPanExpiry:
+          type: string
+          maxLength: 4
+          pattern: ^((0[1-9]|11|12)[0-9][0-9]{1,4})$
+          description: The new expiry Date of the card. Format MMYY. This value will be
+            sent only if the token is allocated when provision request
+        tokenSuffix:
+          type: string
+          maxLength: 4
+          pattern: ^([0-9]{4})$
+          description: last 4 digits of the Payment Token which should match the token field
+        foregroundColorRGB:
+          $ref: "#/components/schemas/Color"
+        backgroundColorRGB:
+          $ref: "#/components/schemas/Color"
+        labelColorRGB:
+          $ref: "#/components/schemas/Color"
+    AccountProvisionRequest:
+      type: object
+      description: Account Provision Request
+      properties:
+        eligibilityContext:
+          type: string
+          description: This element contains the list of the additional wallet specific
+            Eligibility data
+        secureContext:
+          $ref: "#/components/schemas/SecureContext"
+        deviceContext:
+          $ref: "#/components/schemas/DeviceContext"
+        userProvisionContext:
+          $ref: "#/components/schemas/UserProvisionContext"
+        riskContext:
+          $ref: "#/components/schemas/RiskContext"
+        devicePublicKeyContext:
+          type: string
+          description: A set of attributes associated with the Mobile Payment Device that
+            is being provisioned.Not used in this wallet
+      required:
+        - secureContext
+        - riskContext
+    AccountProvisionResponse:
+      type: object
+      required:
+        - provisioningDecision
+      properties:
+        provisioningDecision:
+          type: string
+          description: Issuer’s decision on Provisioning - APPROVED, OOB or DECLINED
+        provisioningMetadataContext:
+          $ref: "#/components/schemas/ProvisioningMetadataContext"
+        issuerContext:
+          $ref: "#/components/schemas/IssuerContext"
+        accountMetadataContext:
+          $ref: "#/components/schemas/AccountMetadataContext"
+        authenticationMetadataContext:
+          type: string
+          description: Contains information regarding additional Authorization details if
+            supported by the wallet. This will be available only when the
+            provision decision is OOB and when issuer sends OOB Contact Channels
+            as part of account provision response. NOT USED IN THIS WALLET
+        secureContext:
+          $ref: "#/components/schemas/SecureContext"
+    AssuranceData:
+      type: object
+      properties:
+        cardVerificationEntity:
+          type: string
+          description: "Entity performing card verification Valid Values:  01 SRC
+            Initiator  02 SRC System  03 SRCPI  04 DCF  05 DPA  06 – 99
+            Others"
+        cardVerificationMethod:
+          type: string
+          description: "A card verification check to validate that the PAN is active and
+            valid at the Card Issuer Valid Values:  01 $0 authorization, or
+            single unit of currency authorization  02 Card Verification Number
+            validation  03 Postal code and address verification, where
+            supported  04 - 20 EMVCo future use  21 - 99 Others"
+        cardVerificationResults:
+          type: string
+          description: "Verification status of the PAN Valid Values:  01 - Verified  02 -
+            Not verified  03 - Not performed  04 - 20 EMVCo future use  21 -
+            99 Others"
+        cardVerificationStamp:
+          type: string
+          description: "Date and time in UTC of when the card verification was conducted
+            ISO 8601 UTC as YYYY-MM-DD’T’hh:mm:ss.sss’Z’ Example:
+            2019-04-19T17:08:23.023Z"
+        cardAssuranceData:
+          type: string
+          maxLength: 255
+          pattern: ^([^\p{C}]{1,255})$
+          description: The data collected that is associated with the PAN and presented to
+            the Network participants
+        cardholderAuthenticationEntity:
+          type: string
+          description: "Entity performing Cardholder Authentication Valid Values:  01 SRC
+            Initiator  02 SRC System  03 SRCPI  04 DCF  05 DPA  06 – 99
+            Others"
+        cardholderAuthenticationMethod:
+          type: string
+          description: "The Card Issuer verification of the Cardholder. Valid values:  01
+            Use of a 3-D Secure ACS  02 Mobile banking verification of the
+            Cardholder with an authentication code  03 Federated login systems
+             04 A shared secret between the Card Issuer and the Cardholder such
+            as One Time Passcode (OTP) activation code  05 - 20 EMVCo future
+            use  21 - 99 Others"
+        cardholderAuthenticationData:
+          type: string
+          maxLength: 255
+          pattern: ^([^\p{C}]{1,255})$
+          description: Data collected that is associated with the Cardholder and presented
+            to the Network participants
+        cardholderAuthenticationResults:
+          type: string
+          description: "Indicates whether the Cardholder was verified or not, and what the
+            results are when verified Valid Values:  01 Verified  02 Not
+            verified  03 Not performed  04 - 20 EMVCo future use  21 - 99
+            Others"
+        cardholderAuthenticationTimestamp:
+          type: string
+          description: "Date and time in UTC of when the Cardholder Authentication was
+            conducted ISO 8601 UTC as YYYY-MM-DD’T’hh:mm:ss.sss’Z’ Example:
+            2019-04-19T17:08:23.023Z"
+        consumerVerificationEntity:
+          type: string
+          description: "Entity performing Consumer verification. Valid Values:  01 SRC
+            Initiator  02 SRC System  03 SRCPI  04 DCF  05 DPA  06 – 99
+            Others"
+        consumerVerificationMethod:
+          type: string
+          description: "The verification method used to verify consumer credential. Valid
+            values:  01 Static Passcode  02 SMS One Time Passcode (OTP)  03
+            Keyfob or EMV cardreader One Time Passcode (OTP)  04 Application
+            One Time Passcode (OTP)  05 One Time Passcode (OTP) Other  06 KBA
+             07 Out of Band Biometrics  08 Out of Band Login  09 Out of Band
+            Other  10 Risk-Based  11 Other  12 - 99 Future EMVCo use"
+        consumerVerificationResults:
+          type: string
+          description: "This indicates whether the Consumer was verified or not, and what
+            the results are when verified Valid Values:  01 Verified  02 Not
+            verified  03 Not performed  04 - 20 EMVCo future use  21 - 99
+            Others"
+        consumerVerificationTimestamp:
+          type: string
+          description: "Date and time in UTC of when the consumer verification was
+            conducted ISO 8601 UTC as YYYY-MM-DD’T’hh:mm:ss.sss’Z’ Example:
+            2019-04-19T17:08:23.023Z"
+        consumerAssuranceData:
+          type: string
+          maxLength: 255
+          pattern: ^([^\p{C}]{1,255})$
+          description: The data collected that is associated with the Consumer for
+            assurance purposes
+        deviceVerificationEntity:
+          type: string
+          description: "Entity performing device verification Valid Values:  01 SRC
+            Initiator  02 SRC System  03 SRCPI  04 DCF  05 DPA  06 – 99
+            Others"
+        deviceVerificationMethod:
+          type: string
+          description: "The verification method used to verify consumer device information
+            Valid Values: 01 - 20 EMVCo future use 21 - 99 Others"
+        deviceVerificationResults:
+          type: string
+          description: "This indicates whether consumer device was verified or not, and
+            what the results are when verified Valid Values:  01 Verified  02
+            Not verified  03 Not performed  04 - 20 EMVCo future use  21 - 99
+            Others"
+        deviceVerificationTimestamp:
+          type: string
+          description: "Date and time in UTC of when the device verification was conducted
+            ISO 8601 UTC as YYYY-MM-DD’T’hh:mm:ss.sss’Z’ Example:
+            2019-04-19T17:08:23.023Z"
+        deviceAssuranceData:
+          type: string
+          maxLength: 255
+          pattern: ^([^\p{C}]{1,255})$
+          description: The data collected that is associated with the Device for assurance
+            purposes
+        relationshipVerificationEntity:
+          type: string
+          description: "Entity performing relationship verification of a combination of
+            data (Card, Cardholder, Device, Consumer) Valid Values:  01 SRC
+            Initiator  02 SRC System  03 SRCPI  04 DCF  05 DPA  06 – 99
+            Others"
+        relationshipVerificationMethod:
+          type: string
+          description: "The verification method used to verify information associated with
+            the relationship (Card, Cardholder, Device, Consumer) Valid Values:
+            01 - 20 EMVCo future use 21 - 99 Others"
+        relationshipVerificationResults:
+          type: string
+          description: "Results of the verification of the relationship of a combination of
+            data (Card, Cardholder, Device, Consumer) Valid Values: 01 Verified
+            02 Not verified 03 Not performed 04 - 20 EMVCo future use 21 - 99
+            Others"
+        relationshipVerificationTimestamp:
+          type: string
+          description: "Date and time in UTC of when the relationship verification was
+            conducted ISO 8601 UTC as YYYY-MM-DD’T’hh:mm:ss.sss’Z’ Example:
+            2019-04-19T17:08:23.023Z"
+        relationshipAssuranceData:
+          type: string
+          maxLength: 255
+          pattern: ^([^\p{C}]{1,255})$
+          description: The data collected that is associated with the binding relationship
+            for assurance purposes (Card, Cardholder, Device, Consumer)
+    Color:
+      type: object
+      properties:
+        red:
+          type: string
+          maxLength: 3
+          pattern: ^([0-9]{1,3})$
+          description: Red colors attribute. Valid range 0 – 255
+        green:
+          type: string
+          maxLength: 3
+          pattern: ^([0-9]{1,3})$
+          description: Green colors attribute. Valid range 0 – 255
+        blue:
+          type: string
+          maxLength: 3
+          pattern: ^([0-9]{1,3})$
+          description: Blue colors attribute. Valid range 0 – 255
+    DeviceContext:
+      type: object
+      properties:
+        countryDuringProvision:
+          type: string
+          maxLength: 2
+          pattern: ^([A-Za-z]{2})$
+          description: Country Code of Payment Device at time of provisioning (ISO 3166-1
+            alpha-2)
+        deviceBrand:
+          type: string
+          maxLength: 64
+          pattern: ^([^\p{C}]{1,64})$
+          description: Brand of the Payment Device. Eg. "Google" for nexus devices
+            ,"Samsung" for Samsung devices
+        deviceIp:
+          type: string
+          maxLength: 32
+          pattern: ^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$
+          description: IP address of the Payment Device.
+        deviceManufacturer:
+          type: string
+          maxLength: 64
+          pattern: ^([^\p{C}]{1,64})$
+          description: Payment Device manufacturer (Google, Samsung, etc.)
+        deviceName:
+          type: string
+          maxLength: 100
+          pattern: ^([^\p{C}]{1,100})$
+          description: User assigned Payment Device name
+    Error:
+      type: object
+      required:
+        - errorCode
+        - errorMessage
+      properties:
+        errorCode:
+          type: string
+          maxLength: 5
+          description: A numeric code specific to the error scenario that occurred
+        errorMessage:
+          type: string
+          maxLength: 5
+          description: This is a string representation of the error code which contains a
+            more meaningful message. This is not intended to be an end user
+            error message
+    IssuerContext:
+      type: object
+      required:
+        - issuerName
+      properties:
+        issuerName:
+          type: string
+          maxLength: 64
+          pattern: ^([^\p{C}]{1,32})$
+          description: Full name of the issuing bank.
+        website:
+          type: string
+          maxLength: 256
+          pattern: ^([^\p{C}]{1,256})$
+          description: Customer service website of issuing bank.
+        email:
+          type: string
+          maxLength: 128
+          pattern: ^([^\p{C}]{1,128})$
+          description: Customer service email address of issuing bank.
+        contactNumber:
+          type: string
+          maxLength: 24
+          pattern: ^([0-9- ()+]{1,24})$
+          description: Customer service phone number of issuing bank.
+        privacyPolicyURL:
+          type: string
+          maxLength: 256
+          pattern: ^([^\p{C}]{1,256})$
+          description: Privacy policy URL of the Issuer.
+        termsConditionsURL:
+          type: string
+          maxLength: 256
+          pattern: ^([^\p{C}]{1,256})$
+          description: Terms & Conditions URL of the Issuer.
+    ProvisioningMetadataContext:
+      type: object
+      required:
+        - tokenId
+        - panId
+        - termsAndConditionsId
+      properties:
+        tokenId:
+          type: string
+          maxLength: 64
+          pattern: ^([A-Za-z0-9]{32,64})$
+          description: Opaque identifier for the Payment Token in the wallet associated to
+            the program id.
+        panId:
+          type: string
+          maxLength: 64
+          pattern: ^([A-Za-z0-9-]{1,64})$
+          description: This is an opaque identifier generated by NWS that can be used in
+            future API calls as a replacement for the PAN. This allows for safer
+            transmission of data and means that the MPP does not need to store
+            the PAN.
+        termsAndConditionsId:
+          type: string
+          maxLength: 64
+          pattern: ^([A-Za-z0-9-_]{1,64})$
+          description: The identifier for the version of the terms and conditions that are
+            to be accepted by the user during this provision cycle.
+    RequestHeader:
+      type: object
+      required:
+        - requestId
+        - sessionId
+        - programId
+      properties:
+        requestId:
+          type: string
+          maxLength: 64
+          pattern: ^([A-Za-z0-9-]{1,64})$
+          description: A unique reference for request. This should be freshly generated by
+            the Client for every API Call. This enables easier troubleshooting
+            of issues between the MPP and the NWP
+        sessionId:
+          type: string
+          maxLength: 64
+          pattern: ^([A-Za-z0-9-]{1,64})$
+          description: This is a Unique Identifier created by the MPP to represent a
+            provisioning attempt for an Account on a Mobile Payment Device.
+        programId:
+          type: string
+          maxLength: 16
+          pattern: ^([A-Za-z0-9]{1,16})$
+          description: This is a unique identifier that identifies the product and the
+            institution participating in the scheme. The value to be sent will
+            be provided by NWP.
+        userContext:
+          $ref: "#/components/schemas/UserContext"
+    ResponseHeader:
+      type: object
+      required:
+        - responseId
+        - sessionId
+        - programId
+      properties:
+        responseId:
+          type: string
+          maxLength: 64
+          description: This is the value that was provided in the request for the requestId.
+        sessionId:
+          type: string
+          maxLength: 64
+          description: This is the value that was provided in the request for sessionId.
+        programId:
+          type: string
+          maxLength: 16
+          description: This is the value that was provided in the request for programId.
+        userContext:
+          $ref: "#/components/schemas/UserContext"
+        errors:
+          $ref: "#/components/schemas/Error"
+    RiskContext:
+      type: object
+      properties:
+        accountRisk:
+          type: string
+          maxLength: 1
+          pattern: ^([1-5]{1})$
+          description: MPP risk rating based on experience with the customer account.
+        ageOfWalletAccount:
+          type: string
+          maxLength: 4
+          pattern: ^([0-9]{1,4})$
+          description: Age of user’s financial relationship with mobile platform (in weeks).
+        fpanTenure:
+          type: string
+          maxLength: 4
+          pattern: ^([0-9]{1,4})$
+          description: Age of card on file (in weeks).
+        assuranceData:
+          $ref: "#/components/schemas/AssuranceData"
+        deviceRisk:
+          type: string
+          maxLength: 4
+          pattern: ^([1-5]{1})$
+          description: MPP risk rating based on experience with the Consumer Device being
+            used for provision. Numeric score from 1-5. 1 – Highest Risk, Lowest
+            Confidence 5 – Lowest Risk, Highest Confidence.
+        provisioningRisk:
+          type: string
+          description: MPP risk rating based on experience with customer and Mobile Payment
+            Device being provisioned.
+          enum:
+            - GREEN
+            - YELLOW
+            - RED
+        riskReason:
+          type: string
+          description: MPP recommendation mapped according to provisioning risk
+            recommendation.
+          enum:
+            - REJECT
+            - REVIEW
+            - PASS
+            - CHALLENGE
+    SecureContext:
+      type: object
+      required:
+        - encryptedContent
+      properties:
+        encryptedContent:
+          $ref: "#/components/schemas/AccountContext"
+          #type: string
+          #pattern: ^([a-zA-Z0-9\-_]+?\.){4}[a-zA-Z0-9\-_]+?$
+          #description: Encrypted representation of the accountContext.
+    SRCAccountProvisionRequest:
+      type: object
+      required:
+        - requestHeader
+        - accountProvisionRequest
+      properties:
+        requestHeader:
+          $ref: "#/components/schemas/RequestHeader"
+        accountProvisionRequest:
+          $ref: "#/components/schemas/AccountProvisionRequest"
+      title: SRCAccountProvisionRequest
+    SRCAccountProvisionResponse:
+      type: object
+      required:
+        - responseHeader
+      properties:
+        responseHeader:
+          $ref: "#/components/schemas/ResponseHeader"
+        accountProvisionResponse:
+          $ref: "#/components/schemas/AccountProvisionResponse"
+        errors:
+          type: array
+          schema:
+            $ref: "#/components/schemas/Error"
+      title: SRCAccountProvisionResponse
+    UserContext:
+      type: object
+      required:
+        - walletId
+      properties:
+        walletId:
+          type: string
+          maxLength: 100
+          pattern: ^([A-Za-z0-9-_]{1,100})$
+          description: Unique identifier for the digital wallet.
+        userId:
+          type: string
+          maxLength: 100
+          pattern: ^([A-Za-z0-9-_+=/]{1,100})$
+          description: A Unique identifier for the user. This can be an EmailAddress or
+            other identifier or a hashed version of the data item.
+    UserProvisionContext:
+      type: object
+      properties:
+        emailAddress:
+          type: string
+          maxLength: 300
+          pattern: ^([^\p{C}]{1,300})$
+          description: Account profile email Address. This can be in the clear or
+            obfuscated depending on the Wallet.
+        emailAddressAge:
+          type: string
+          maxLength: 4
+          pattern: ^([0-9]{1,4})$
+          description: Age of profile email id in weeks
+        hashedEmailAddress:
+          type: string
+          maxLength: 4
+          pattern: ^([^\p{C}]{1,64})$
+          description: Hashed Email Address / Account Id
+        profilePhoneNumber:
+          type: string
+          maxLength: 20
+          pattern: ^([0-9- ()+]{1,20})$
+          description: Consumer’s phone number used for profile creation
